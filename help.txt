@@ -1,0 +1,92 @@
+===========================================
+ Passwd Rules Analyzer - Help Documentation
+===========================================
+
+NAME
+    Passwd Rules Analyzer - Analyze passwd, sudoers, and sshd_config files for rule violations.
+
+SYNOPSIS
+    python3 script.py [options]
+
+DESCRIPTION
+    This tool analyzes system configuration files (passwd, sudoers, sshd_config) for rule violations
+    based on predefined security and compliance rules.
+
+RULES
+-------
+1. Passwd File Rules:
+
+    - only_root_uid_0:
+        Ensures only the 'root' user has UID 0. Other users with UID 0 are flagged.
+
+    - restricted_usernames:
+        Flags restricted usernames such as 'guest', 'test', 'admin', and 'backup' that are often targeted
+        by attackers or used as default accounts.
+
+    - duplicate_usernames:
+        Detects duplicate usernames in the passwd file, which can cause conflicts or unauthorized access.
+
+    - non_system_users_with_login:
+        Identifies non-system users (UID >= 1000) who have login access enabled.
+
+2. Sudoers File Rules:
+
+    - no_full_permissions:
+        Flags users or groups with "ALL=(ALL)" permissions, except for the 'root' user.
+
+    - no_password_sudo:
+        Detects users with "NOPASSWD" configured, allowing passwordless sudo execution.
+
+    - no_wildcard_in_command:
+        Identifies sudoers rules that use wildcard characters (*) in commands, which can grant excessive permissions.
+
+    - non_root_sudo:
+        Detects non-root users with sudo privileges, which can lead to privilege escalation risks.
+
+    - group_sudo_privileges:
+        Flags groups (e.g., %admin) with broad sudo permissions, as this can affect multiple users at once.
+
+    - target_user_privileges:
+        Identifies users who have permissions to execute commands as other users (e.g., `ALL`).
+
+    - syntax_error:
+        Detects syntax errors in the sudoers file (requires output from `visudo` command).
+
+3. SSHD Config File Rules:
+
+    - no_root_login:
+        Flags configurations where "PermitRootLogin" is enabled (should be set to 'no').
+
+    - no_password_auth:
+        Ensures "PasswordAuthentication" is disabled to avoid password-based login.
+
+    - max_auth_tries:
+        Checks if "MaxAuthTries" exceeds a recommended limit (e.g., > 3 attempts).
+
+    - missing_allow_users:
+        Detects if "AllowUsers" or "AllowGroups" directives are missing, which can result in broad login access.
+
+OPTIONS
+-------
+    --help
+        Show this help message and exit.
+
+    --generate-help
+        Dynamically generate this help file based on the rules defined in the script.
+
+NOTES
+-----
+    - Ensure that you have read access to the configuration files before running the script.
+    - Use `visudo` to safely edit the sudoers file.
+    - Regularly review and update your security policies to adapt to new threats.
+
+EXAMPLES
+--------
+    Analyze the passwd file:
+        python3 unix_file_analysis.py --analyze-passwd /path/to/files
+
+    Analyze the sudoers file:
+        python3 unix_file_analysis.py --analyze-sudoers /path/to/files
+
+    Analyze the sshd_config file:
+        python3 unix_file_analysis.py --analyze-sshd /path/to/files
